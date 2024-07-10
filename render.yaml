@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: skin-disease-detector
+    name: ML
     env: python
     buildCommand: ""
     startCommand: gunicorn app:app
