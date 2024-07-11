@@ -6,7 +6,7 @@ import numpy as np
 # Load the model
 @st.cache_resource
 def load_model():
-    model = tf.keras.models.load_model('your_model.h5')
+    model = tf.keras.models.load_model('model.h5')
     return model
 
 model = load_model()
@@ -35,14 +35,6 @@ if uploaded_file is not None:
     predicted_class = np.argmax(prediction)
 
     # Replace with your actual class labels
-    class_labels = [
-        "Actinic keratoses and intraepithelial carcinoma / Bowen's disease",
-        'Basal cell carcinoma',
-        'Benign keratosis-like lesions (solar lentigines / seborrheic keratoses and lichen-planus like keratoses)',
-        'Dermatofibroma',
-        'Melanoma',
-        'Melanocytic nevi',
-        'Vascular lesion'
-    ]
+    class_labels = ['bkl', 'nv', 'df', 'mel', 'vasc', 'bcc', 'akiec'] 
 
     st.write(f"Prediction: {class_labels[predicted_class]}")
