@@ -35,6 +35,6 @@ if uploaded_file is not None:
     predicted_class = np.argmax(prediction)
 
     # Replace with your actual class labels
-    class_labels = ['bkl', 'nv', 'df', 'mel', 'vasc', 'bcc', 'akiec'] 
+    class_labels = ['Benign keratosis-like lesions', 'Melanocytic nevi', 'Dermatofibroma', 'Melanoma', 'Vascular lesions', 'Basal cell carcinoma', 'Actinic keratoses'] 
 
     st.write(f"Prediction: {class_labels[predicted_class]}")
