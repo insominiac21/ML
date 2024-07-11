@@ -1,91 +1,40 @@
-from flask import Flask, request, render_template, jsonify
-import os
-from PIL import Image
-import numpy as np
+import streamlit as st
 import tensorflow as tf
-import logging
+from PIL import Image, ImageOps
+import numpy as np
 
-app = Flask(__name__)
-UPLOAD_FOLDER = 'uploads'
-MODEL_PATH = 'path_to_your_trained_model.h5'
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+# Load the model
+@st.cache_resource
+def load_model():
+    model = tf.keras.models.load_model('your_model.h5')
+    return model
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
+model = load_model()
 
-# Load the trained model
-try:
-    model = tf.keras.models.load_model(MODEL_PATH)
-    logging.info("Model loaded successfully.")
-except Exception as e:
-    logging.error(f"Error loading model: {e}")
-    raise
-
-# Define the label mappings
-label_to_id = {'nv': 0, 'mel': 1, 'bkl': 2, 'bcc': 3, 'akiec': 4, 'vasc': 5, 'df': 6}
-id_to_label = {v: k for k, v in label_to_id.items()}
-
-# TensorFlow memory growth configuration for GPU
-physical_devices = tf.config.experimental.list_physical_devices('GPU')
-if physical_devices:
-    try:
-        for device in physical_devices:
-            tf.config.experimental.set_memory_growth(device, True)
-    except RuntimeError as e:
-        logging.error(f"Error setting GPU memory growth: {e}")
-
+# Preprocess the image
 def preprocess_image(image):
-    """Preprocess the image to the format required by the model."""
-    try:
-        image = Image.open(image).convert('RGB')
-        image = image.resize((224, 224))  # Assuming the model requires 224x224 input size
-        image = np.array(image)
-        image = image / 255.0  # Normalize to [0, 1] range
-        image = np.expand_dims(image, axis=0)  # Add batch dimension
-        logging.info("Image preprocessed successfully.")
-        return image
-    except Exception as e:
-        logging.error(f"Error processing image: {e}")
-        return None
+    size = (224, 224)
+    image = ImageOps.fit(image, size, Image.LANCZOS)
+    image_array = np.asarray(image)
+    normalized_image_array = image_array.astype(np.float32) / 255.0
+    reshaped_image = normalized_image_array.reshape(1, 224, 224, 3)
+    return reshaped_image
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+# Create the Streamlit app
+st.title("Skin Disease Prediction App")
 
-@app.route('/upload', methods=['POST'])
-def upload():
-    if 'file' not in request.files:
-        logging.error("No file part in request.")
-        return jsonify({'error': 'No file part'}), 400
-    file = request.files['file']
-    if file.filename == '':
-        logging.error("No file selected.")
-        return jsonify({'error': 'No selected file'}), 400
-    if file:
-        filepath = os.path.join(UPLOAD_FOLDER, file.filename)
-        file.save(filepath)
+uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
-        # Open the image file
-        image = Image.open(filepath)
-        preprocessed_image = preprocess_image(image)
+if uploaded_file is not None:
+    image = Image.open(uploaded_file)
+    st.image(image, caption='Uploaded Image.', use_column_width=True)
+    st.write("")
+    st.write("Classifying...")
+    preprocessed_image = preprocess_image(image)
+    prediction = model.predict(preprocessed_image)
+    predicted_class = np.argmax(prediction)
 
-        if preprocessed_image is None:
-            logging.error("Image preprocessing failed.")
-            return jsonify({'error': 'Image preprocessing failed'}), 400
-
-        try:
-            # Predict using the model
-            prediction = model.predict(preprocessed_image)
-            predicted_class = np.argmax(prediction, axis=1)[0]
-
-            # Map the predicted class to the corresponding label
-            result = id_to_label[predicted_class]
-
-            logging.info(f"Prediction successful: {result}")
-            return jsonify({'prediction': result})
-        except Exception as e:
-            logging.error(f"Prediction error: {e}")
-            return jsonify({'error': str(e)}), 500
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    # Replace with your actual class labels
+    class_labels = ['Actinic keratoses and intraepithelial carcinoma / Bowen's disease', 'basal cell carcinoma', 'benign keratosis-like lesions (solar lentigines / seborrheic keratoses and lichen-planus like keratoses)', 'dermatofibroma', 'melanoma', 'melanocytic nevi', ' vascular lesion'] 
+   
+    st.write(f"Prediction: {class_labels[predicted_class]}")
