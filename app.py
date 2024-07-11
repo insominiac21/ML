@@ -35,6 +35,14 @@ if uploaded_file is not None:
     predicted_class = np.argmax(prediction)
 
     # Replace with your actual class labels
-    class_labels = ['Actinic keratoses and intraepithelial carcinoma / Bowen's disease', 'basal cell carcinoma', 'benign keratosis-like lesions (solar lentigines / seborrheic keratoses and lichen-planus like keratoses)', 'dermatofibroma', 'melanoma', 'melanocytic nevi', ' vascular lesion'] 
-   
+    class_labels = [
+        "Actinic keratoses and intraepithelial carcinoma / Bowen's disease",
+        'Basal cell carcinoma',
+        'Benign keratosis-like lesions (solar lentigines / seborrheic keratoses and lichen-planus like keratoses)',
+        'Dermatofibroma',
+        'Melanoma',
+        'Melanocytic nevi',
+        'Vascular lesion'
+    ]
+
     st.write(f"Prediction: {class_labels[predicted_class]}")
