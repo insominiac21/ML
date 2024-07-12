@@ -3,8 +3,8 @@ import tensorflow as tf
 from PIL import Image, ImageOps
 import numpy as np
 
-# Load the model with caching to improve performance
-@st.cache(allow_output_mutation=True)
+# Load the model
+@st.cache_resource
 def load_model():
     model = tf.keras.models.load_model('model.h5')
     return model
