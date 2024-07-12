@@ -3,8 +3,8 @@ import tensorflow as tf
 from PIL import Image, ImageOps
 import numpy as np
 
-# Load the model with caching to improve performance
-@st.cache(allow_output_mutation=True)
+# Use st.cache_data for caching the model
+@st.cache_data
 def load_model():
     model = tf.keras.models.load_model('model.h5')
     return model
@@ -44,5 +44,17 @@ if uploaded_file is not None:
 
         st.write(f"Prediction: {class_labels[predicted_class]}")
     except Exception as e:
-        st.error(f"Error processing image: {e}")
-    
+        
+        st.error(
+            """
+            An error occurred while processing the image:
+            - Please ensure the image is not too small or too large and closest to being a square.
+            - Ideal image sizes range from small (e.g., 100x100 pixels) to moderately large (e.g., 1000x1000 pixels).
+            - Extremely large images or those with unusual aspect ratios might cause processing issues.
+            
+            **Error details:** {}
+            """.format(e)
+        )
+
+
+
