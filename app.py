@@ -48,7 +48,7 @@ if uploaded_file is not None:
             'Melanoma', 
             'Vascular lesions', 
             'Basal cell carcinoma (BCC)',  
-            'Actinic keratoses'
+            'Actinic keratoses (AKs)'
         ]
 
         st.write(f"Prediction: {class_labels[predicted_class]}")
