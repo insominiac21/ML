@@ -47,7 +47,7 @@ if uploaded_file is not None:
             'Dermatofibroma', 
             'Melanoma', 
             'Vascular lesions', 
-            'Basal cell carcinoma', 
+            'Basal cell carcinoma (BCC)',  
             'Actinic keratoses'
         ]
 
@@ -148,6 +148,5 @@ Differential Diagnosis: Differentiating between various benign conditions (like 
             **Error details:** {}
             """.format(e)
         )
-
 
 
